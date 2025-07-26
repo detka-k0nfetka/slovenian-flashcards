@@ -1,4 +1,4 @@
-const SHEET_ID = 'YOUR_SHEET_ID'; // replace with your sheet ID
+const SHEET_ID = '2PACX-1vQIQmIKwQRqmI39B9CtXrU4QmsdOcrCVTykK2lrLrCQqcfdYhRxHHzXAplAQ7kiqUtvQrDv8T9pEwHD'; // replace with your sheet ID
 const SHEET_GID = '0'; // sheet gid (tab id)
 
 let units = [];
@@ -9,6 +9,7 @@ let show = false;
 
 async function loadData() {
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${SHEET_GID}`;
+
   const res = await fetch(url);
   const csv = await res.text();
   return parseCsv(csv);
