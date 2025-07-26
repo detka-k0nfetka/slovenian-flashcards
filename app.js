@@ -28,13 +28,19 @@ function render() {
   const [sl, ru] = wordList[index];
   document.getElementById("app").innerHTML = `
     <h1>Словенский ⇄ Русский</h1>
-    <h2>${sl}</h2>
-    ${show ? `<p>${ru}</p>` : ""}
+    <h2>${sl} <button onclick="speak('${sl}', 'sl-SI')">🔊</button></h2>
+    ${show ? `<p>${ru} <button onclick="speak('${ru}', 'ru-RU')">🔊</button></p>` : ""}
     <div>
       <button onclick="toggle()">${show ? "Скрыть" : "Показать"} перевод</button>
       <button onclick="next()">Следующее слово</button>
     </div>
   `;
+}
+
+function speak(text, lang) {
+  const msg = new SpeechSynthesisUtterance(text);
+  msg.lang = lang;
+  window.speechSynthesis.speak(msg);
 }
 
 function toggle() {
