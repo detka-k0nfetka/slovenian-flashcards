@@ -9,10 +9,15 @@ let show = false;
 
 async function loadData() {
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${SHEET_GID}`;
-
-  const res = await fetch(url);
-  const csv = await res.text();
-  return parseCsv(csv);
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Ошибка загрузки данных');
+    const csv = await res.text();
+    return parseCsv(csv);
+  } catch (e) {
+    document.getElementById('app').innerHTML = `<p style="color:red;">${e.message}</p>`;
+    return [];
+  }
 }
 
 function parseCsv(text) {
