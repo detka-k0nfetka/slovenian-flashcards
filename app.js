@@ -60,7 +60,8 @@ function populateUnitSelect() {
 function populateTopicSelect() {
   const select = document.getElementById('topicSelect');
   const topics = units[currentUnit].topics;
-  select.innerHTML = topics.map((t, i) => `<option value="${i}">${t.name}</option>`).join('');
+  select.innerHTML = `<option value="-1">Все темы</option>` +
+    topics.map((t, i) => `<option value="${i}">${t.name}</option>`).join('');
   select.onchange = () => {
     currentTopic = parseInt(select.value, 10);
     wordIndex = 0;
@@ -69,18 +70,31 @@ function populateTopicSelect() {
 }
 
 function render() {
-  // Если сменился юнит или топик, перемешиваем слова
-  if (shuffledUnit !== currentUnit || shuffledTopic !== currentTopic) {
-    const wordList = units[currentUnit].topics[currentTopic].words.slice();
+  let wordList;
+  if (currentTopic === -1) {
+    // Все слова из юнита
+    wordList = units[currentUnit].topics.flatMap(t => t.words);
+  } else {
+    // Слова из выбранного топика
+    wordList = units[currentUnit].topics[currentTopic].words.slice();
+  }
+
+  // Перемешиваем при смене юнита/топика/режима
+  if (
+    shuffledUnit !== currentUnit ||
+    shuffledTopic !== currentTopic ||
+    !shuffledWords.length
+  ) {
     shuffledWords = shuffle(wordList);
     shuffledUnit = currentUnit;
     shuffledTopic = currentTopic;
     wordIndex = 0;
   }
-  const [sl, ru] = shuffledWords[wordIndex];
+
+  const [sl, ru] = shuffledWords[wordIndex] || ["", ""];
   document.getElementById('app').innerHTML = `
     <h1>Словенский ⇄ Русский</h1>
-    <h3>${units[currentUnit].name} – ${units[currentUnit].topics[currentTopic].name}</h3>
+    <h3>${units[currentUnit].name}${currentTopic === -1 ? '' : ' – ' + units[currentUnit].topics[currentTopic].name}</h3>
     <h2>${sl}</h2>
     ${show ? `<p>${ru}</p>` : ''}
     <div>
