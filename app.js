@@ -6,6 +6,9 @@ let currentUnit = 0;
 let currentTopic = 0;
 let wordIndex = 0;
 let show = false;
+let shuffledWords = [];
+let shuffledUnit = null;
+let shuffledTopic = null;
 
 async function loadData() {
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${SHEET_GID}`;
@@ -66,8 +69,15 @@ function populateTopicSelect() {
 }
 
 function render() {
-  const wordList = units[currentUnit].topics[currentTopic].words;
-  const [sl, ru] = wordList[wordIndex];
+  // Если сменился юнит или топик, перемешиваем слова
+  if (shuffledUnit !== currentUnit || shuffledTopic !== currentTopic) {
+    const wordList = units[currentUnit].topics[currentTopic].words.slice();
+    shuffledWords = shuffle(wordList);
+    shuffledUnit = currentUnit;
+    shuffledTopic = currentTopic;
+    wordIndex = 0;
+  }
+  const [sl, ru] = shuffledWords[wordIndex];
   document.getElementById('app').innerHTML = `
     <h1>Словенский ⇄ Русский</h1>
     <h3>${units[currentUnit].name} – ${units[currentUnit].topics[currentTopic].name}</h3>
@@ -86,10 +96,18 @@ function toggle() {
 }
 
 function next() {
-  const words = units[currentUnit].topics[currentTopic].words;
-  wordIndex = (wordIndex + 1) % words.length;
+  wordIndex = (wordIndex + 1) % shuffledWords.length;
   show = false;
   render();
+}
+
+// Функция перемешивания массива
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
 }
 
 document.addEventListener('DOMContentLoaded', init);
