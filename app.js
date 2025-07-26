@@ -24,7 +24,7 @@ function parseCsv(text) {
   const lines = text.trim().split('\n');
   const data = {};
   for (const line of lines.slice(1)) {
-    const [unit, topic, sl, ru] = line.split(',').map(s => s.trim());
+    const [unit, topic, sl, ru] = line.split(',').map(s => s.trim().replace(/^"|"$/g, ''));
     if (!data[unit]) data[unit] = {};
     if (!data[unit][topic]) data[unit][topic] = [];
     data[unit][topic].push([sl, ru]);
