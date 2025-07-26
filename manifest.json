@@ -1,0 +1,13 @@
+{
+  "name": "Slovenian Flashcards",
+  "short_name": "SloCards",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "description": "Учебник словенских слов",
+  "icons": [{
+    "src": "icon.png",
+    "sizes": "192x192",
+    "type": "image/png"
+  }]
+}
