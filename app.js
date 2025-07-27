@@ -98,7 +98,7 @@ function render() {
   document.getElementById('app').innerHTML = `
     <h1>Словенский ⇄ Русский</h1>
     <h3>${units[currentUnit].name}${currentTopic === -1 ? '' : ' – ' + units[currentUnit].topics[currentTopic].name}</h3>
-    <h2>${sl}</h2>
+    <h2>${sl} <button onclick="speakSlovene('${sl}')">🔊</button></h2>
     ${show ? `<p>${ru}</p>` : ''}
     <div>
       <button onclick="toggle()">${show ? 'Скрыть' : 'Показать'} перевод</button>
@@ -125,6 +125,12 @@ function shuffle(array) {
     [array[i], array[j]] = [array[j], array[i]];
   }
   return array;
+}
+
+function speakSlovene(text) {
+  const msg = new SpeechSynthesisUtterance(text);
+  msg.lang = 'sl-SI';
+  window.speechSynthesis.speak(msg);
 }
 
 document.addEventListener('DOMContentLoaded', init);
