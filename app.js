@@ -27,7 +27,10 @@ function parseCsv(text) {
   const lines = text.trim().split('\n');
   const data = {};
   for (const line of lines.slice(1)) {
-    const [unit, topic, sl, ru] = line.split(',').map(s => s.trim().replace(/^"|"$/g, ''));
+    // Парсим строку с учетом кавычек
+    const matches = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
+    if (!matches || matches.length < 4) continue;
+    const [unit, topic, sl, ru] = matches.map(s => s.trim().replace(/^"|"$/g, ''));
     if (!data[unit]) data[unit] = {};
     if (!data[unit][topic]) data[unit][topic] = [];
     data[unit][topic].push([sl, ru]);
