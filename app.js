@@ -11,26 +11,24 @@ let shuffledUnit = null;
 let shuffledTopic = null;
 
 async function loadData() {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${SHEET_GID}`;
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=tsv&gid=${SHEET_GID}`;
   try {
     const res = await fetch(url);
     if (!res.ok) throw new Error('Ошибка загрузки данных');
-    const csv = await res.text();
-    return parseCsv(csv);
+    const tsv = await res.text();
+    return parseTsv(tsv);
   } catch (e) {
     document.getElementById('app').innerHTML = `<p style="color:red;">${e.message}</p>`;
     return [];
   }
 }
 
-function parseCsv(text) {
+function parseTsv(text) {
   const lines = text.trim().split('\n');
   const data = {};
   for (const line of lines.slice(1)) {
-    // Парсим строку с учетом кавычек
-    const matches = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
-    if (!matches || matches.length < 4) continue;
-    const [unit, topic, sl, ru] = matches.map(s => s.trim().replace(/^"|"$/g, ''));
+    const [unit, topic, sl, ru] = line.split('\t');
+    if (!unit || !topic || !sl || !ru) continue;
     if (!data[unit]) data[unit] = {};
     if (!data[unit][topic]) data[unit][topic] = [];
     data[unit][topic].push([sl, ru]);
@@ -53,7 +51,7 @@ function populateUnitSelect() {
   select.innerHTML = units.map((u, i) => `<option value="${i}">${u.name}</option>`).join('');
   select.onchange = () => {
     currentUnit = parseInt(select.value, 10);
-    currentTopic = 0;
+    currentTopic = -1; // Выбираем "Все темы" по умолчанию
     wordIndex = 0;
     populateTopicSelect();
     render();
@@ -65,6 +63,7 @@ function populateTopicSelect() {
   const topics = units[currentUnit].topics;
   select.innerHTML = `<option value="-1">Все темы</option>` +
     topics.map((t, i) => `<option value="${i}">${t.name}</option>`).join('');
+  select.value = "-1"; // Устанавливаем "Все темы" как выбранное по умолчанию
   select.onchange = () => {
     currentTopic = parseInt(select.value, 10);
     wordIndex = 0;
@@ -75,14 +74,11 @@ function populateTopicSelect() {
 function render() {
   let wordList;
   if (currentTopic === -1) {
-    // Все слова из юнита
     wordList = units[currentUnit].topics.flatMap(t => t.words);
   } else {
-    // Слова из выбранного топика
     wordList = units[currentUnit].topics[currentTopic].words.slice();
   }
 
-  // Перемешиваем при смене юнита/топика/режима
   if (
     shuffledUnit !== currentUnit ||
     shuffledTopic !== currentTopic ||
@@ -118,7 +114,6 @@ function next() {
   render();
 }
 
-// Функция перемешивания массива
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
